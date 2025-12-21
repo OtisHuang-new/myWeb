@@ -1,0 +1,43 @@
+myBk/app
+Toggle navigation
+User ImageHOÀNG LÂM ĐĂNG KHÔI
+User Image
+HOÀNG LÂM ĐĂNG KHÔI
+
+ Khoa Khoa học và Kỹ thuật Máy tính
+Sinh viên
+Thông tin sinh viên
+Thời khóa biểu
+Lịch thi
+Thông tin tuyển sinh
+Dịch vụ sinh viên
+Kết quả học tập
+ Tài liệu hướng dẫn
+Hệ thống quản lý Quản lý người dùng
+ Quản lý người dùng Người dùng
+ Trở về trang trước
+LỊCH KIỂM TRA - THI HỌC KỲ
+Họ tên: Hoàng Lâm Đăng Khôi (2452575)
+
+ 
+20251 - Học kỳ 1 Năm học 2025 - 2026(Hiện hành)
+Trình bày 
+10
+ dòng/trang
+Tìm kiếm:
+Học kỳ	Môn học	Nhóm lớp	Ngày thi	Loại thi	Cơ sở	Mã phòng	Thứ	Giờ bắt đầu	Tổng số phút	Cập nhật cuối cùng vào lúc
+20251	CO2011 - Mô hình hóa Toán học	CC01_B_Thi	2026-01-02	CK	BK-LTK	B4-501	6	07g00	80	2025-11-06 14:11:00
+20251	CO2007 - Kiến trúc Máy tính	CC02_C_Ktr	2025-10-23	GK	BK-LTK	B4-505	5	09g00	60	2025-09-24 09:09:00
+20251	CO2003 - Cấu trúc Dữ liệu và Giải Thuật	CC02_A_Ktr	2025-10-26	GK	BK-LTK	B4-505	8	09g00	60	2025-09-24 09:09:00
+20251	SP1031 - Triết học Mác - Lênin	CC01_C_Thi	2025-12-19	CK	BK-LTK	B8-301	6	09g30	50	2025-11-06 14:11:00
+20251	CNTTNC - CNTTNC	CC25_A_Thi	2025-12-07	CK	BK-LTK	C6-102	8	11g00	90	2025-12-04 15:12:00
+20251	CO2003 - Cấu trúc Dữ liệu và Giải Thuật	CC02_A_Thi	2025-12-17	CK	BK-LTK	B1-309	4	13g00	90	2025-11-06 14:11:00
+20251	CO2007 - Kiến trúc Máy tính	CC02_C_Thi	2025-12-18	CK	BK-LTK	B1-208	5	13g00	90	2025-11-06 14:11:00
+20251	CO2011 - Mô hình hóa Toán học	CC01_B_Ktr	2025-10-22	GK	BK-LTK	B6-304	4	15g00	70	2025-09-24 09:09:00
+Trình bày từ dòng 1 đến 8 / 8 dòng
+Lùi1Tới
+Version 2.4.0Copyright © 2025 Academic Affairs Office. All rights reserved.
+Beta
+0 / 10
+used queries
+1
