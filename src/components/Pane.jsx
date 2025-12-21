@@ -43,7 +43,7 @@ function Pane() {
             let myEvent = `BEGIN:VEVENT\n`
                         + `UID:${line[0] + line[4] + line[1].split(" - ")[0]}@myExams.com\n`
                         + `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, "").split(".")[0] + "Z"}\n`
-                        + `SUMMARY:${"THI " + line[4] + " " + line[1].split(" - ")[1]}\n`
+                        + `SUMMARY:${"THI " + line[4] + " " + line[1].substring(line[1].indexOf(" - ") + 3, line[1].length)}\n`
                         + `DESCRIPTION:${"Cơ sở " + line[5] + " - Phòng " + line[6] + "\\nThời gian làm bài: " + line[9]}\n`
                         + `LOCATION:\n`
                         + `DTSTART:${toICS(line[3], line[8])}\n`
@@ -78,7 +78,7 @@ function Pane() {
                 value={content}
                 onChange={(e) => setContent(e.target.value)} 
                 className="w-full h-32 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
-                placeholder="Hãy gõ gì đó ở đây..."
+                placeholder="Hãy nhập Thời khóa biểu vào đây..."
             ></textarea>
             
             <button 
