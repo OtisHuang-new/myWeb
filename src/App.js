@@ -1,4 +1,5 @@
 import Pane from './components/Pane.jsx'
+// import TEST from './components/TEST.jsx';
 
 function App() {
   return (
