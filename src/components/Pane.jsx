@@ -92,80 +92,77 @@ function Pane() {
     };
     
     const createNewCalendarAndEvent = async () => {
-        if (!accessToken) return alert("Vui lòng kết nối Google trước!");
-    
-        try {
-          const createCalRes = await fetch("https://www.googleapis.com/calendar/v3/calendars", {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${accessToken}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              'summary': 'Lịch Thi Học Kỳ 1', // Tên bộ lịch mới
-              'timeZone': 'Asia/Ho_Chi_Minh'
-            })
-          });
-    
-          const newCalendar = await createCalRes.json();
-          const newCalendarId = newCalendar.id; // Đây là ID của bộ lịch vừa tạo
-          console.log("Đã tạo lịch mới với ID:", newCalendarId);
-          
-          
-            // BƯỚC 2: THÊM SỰ KIỆN VÀO LỊCH MỚI ĐÓ
-            let {lines, startIdx, end_line} = handleSplit();
-            while(lines[startIdx] !== end_line && startIdx < lines.length){
-                const line = lines[startIdx].split('\t');
-                const toICS = (ngay, gio, themPhut = 0) => {
-                    const d = new Date(`${ngay}T${gio.replace('g', ':').padStart(5, '0')}:00+07:00`);
-                    const minutesToAdd = Number(themPhut); 
-                    if (!isNaN(minutesToAdd)) {
-                        d.setMinutes(d.getMinutes() + minutesToAdd);
-                    }
-                    return d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
-                };
-                
-                const myEvent = {
-                    'summary' : `${"THI " + line[4] + " " + line[1].substring(line[1].indexOf(" - ") + 3, line[1].length)}`,
-                    'start' : {
-                        'dateTime': '',
-                        'timeZone': 'Asia/Ho_Chi_Minh'
-                    },
-                    'end' : 
-                };
+      if (!accessToken) return alert("Vui lòng kết nối Google trước!");
+  
+      try {
+        let {lines, startIdx, end_line} = handleSplit();
 
-                            + `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, "").split(".")[0] + "Z"}\n`
-                            + `DESCRIPTION:${"Cơ sở " + line[5] + " - Phòng " + line[6] + "\\nThời gian làm bài: " + line[9]}\n`
-                            + `LOCATION:\n`
-                            + `DTSTART:${toICS(line[3], line[8])}\n`
-                            + `DTEND:${toICS(line[3], line[8], line[9])}\n`
-                            + `STATUS:CONFIRMED\n`
-                            + `END:VEVENT\n`;
-                startIdx++;
-            }
-          const event = {
-            'summary': 'Thi Môn Hệ Điều Hành',
-            'start': { 'dateTime': '2025-12-31T13:30:00+07:00', 'timeZone': 'Asia/Ho_Chi_Minh' },
-            'end': { 'dateTime': '2025-12-31T15:30:00+07:00', 'timeZone': 'Asia/Ho_Chi_Minh' },
+        // Create new Calendar
+        const createCalRes = await fetch("https://www.googleapis.com/calendar/v3/calendars", {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            'summary': `${"Lịch thi " + lines[startIdx].substring(0,5)}`, // Tên bộ lịch mới
+            'timeZone': 'Asia/Ho_Chi_Minh'
+          })
+        });
+
+        const newCalendar = await createCalRes.json();
+        const newCalendarId = newCalendar.id; 
+
+        // Create Events
+        let check = true;
+        const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+        while(lines[startIdx] !== end_line && startIdx < lines.length){
+          const line = lines[startIdx].split('\t');
+          const format = (ngay, gio, themPhut = 0) => {
+            const d = new Date(`${ngay}T${gio.replace('g', ':').padStart(5, '0')}:00+07:00`);
+            if (themPhut > 0) d.setMinutes(d.getMinutes() + Number(themPhut));
+
+            const offset = "+07:00";
+            const isoString = d.toLocaleString('sv-SE').replace(' ', 'T'); // YYYY-MM-DD HH:mm:ss
+            return isoString + offset;
           };
-    
+          const myEvent = {
+            'summary': `${"THI " + line[4] + " " + line[1].substring(line[1].indexOf(" - ") + 3, line[1].length)}`,
+            'description': `Cơ sở ${line[5]} - Phòng ${line[6]}\nThời gian làm bài: ${line[9]}`,
+            'start': {
+              'dateTime': `${format(line[3], line[8])}`,
+              'timeZone': 'Asia/Ho_Chi_Minh'
+            },
+            'end': {
+              'dateTime': `${format(line[3], line[8], line[9])}`,
+              'timeZone': 'Asia/Ho_Chi_Minh'
+            },
+          };
+
           const addEventRes = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${newCalendarId}/events`, {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${accessToken}`,
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify(event)
+            body: JSON.stringify(myEvent)
           });
-    
-          if (addEventRes.ok) {
-            alert(`Đã tạo lịch mới "${newCalendar.summary}" và thêm môn thi thành công!`);
-          }
-    
-        } catch (error) {
-          console.error("Lỗi:", error);
+          await delay(2000);
+
+          if(check) check = addEventRes.ok;
+
+          startIdx++;
         }
+        if(check)
+          alert("Đã thêm lịch");
+        else 
+          alert("Lỗi");
+      } catch (error) {
+        console.error("Lỗi:", error);
+        alert("Lỗi: " + error);
+      }
     };
+
     return (
         <>
         <div className="w-[400px] bg-white p-4 shadow-lg rounded-lg">
@@ -184,23 +181,23 @@ function Pane() {
                 className="mt-3 w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition" 
                 onClick={createEventsToFile}
             >
-                Lưu thời khóa biểu
+                Tải lịch thi
             </button>
+            <div style={{ padding: '20px', textAlign: 'center' }}>
+              <p>Trạng thái: <strong>{status}</strong></p>
+              
+              {!accessToken ? (
+                  <button onClick={handleConnect} style={btnStyle}>
+                  Kết nối Google
+                  </button>
+              ) : (
+                  <button onClick={createNewCalendarAndEvent} style={{...btnStyle, backgroundColor: '#28a745'}}>
+                  Thêm Lịch Thi vào Google Calendar
+                  </button>
+              )}
+          </div>
         </div>
-        <div style={{ padding: '20px', textAlign: 'center' }}>
-            <h2>Demo Kết Nối Google Calendar</h2>
-            <p>Trạng thái: <strong>{status}</strong></p>
-            
-            {!accessToken ? (
-                <button onClick={handleConnect} style={btnStyle}>
-                Bước 1: Kết nối Google
-                </button>
-            ) : (
-                <button onClick={createNewCalendarAndEvent} style={{...btnStyle, backgroundColor: '#28a745'}}>
-                Bước 2: Thêm Lịch Thi Mẫu
-                </button>
-            )}
-        </div>
+        
         </>
     );
 }
