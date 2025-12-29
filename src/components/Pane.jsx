@@ -1,40 +1,41 @@
 import { useState } from 'react';
 function Pane() {
+    const start_line = "Học kỳ	Môn học	Nhóm lớp	Ngày thi	Loại thi	Cơ sở	Mã phòng	Thứ	Giờ bắt đầu	Tổng số phút	Cập nhật cuối cùng vào lúc";
+    const end_line = "Trình bày từ dòng 1 đến 8 / 8 dòng";
     const [content, setContent] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const handleSplit = () => {
-        const start_line = "Học kỳ	Môn học	Nhóm lớp	Ngày thi	Loại thi	Cơ sở	Mã phòng	Thứ	Giờ bắt đầu	Tổng số phút	Cập nhật cuối cùng vào lúc";
-        const end_line = "Trình bày từ dòng 1 đến 8 / 8 dòng";
-
         if (!content || typeof content.split !== 'function') {
-            alert("Dữ liệu không đúng chuẩn");
-            return;
-          }
+          throw new Error("Dữ liệu không đúng chuẩn");
+        }
         
         const lines = content?.split('\n') || [];
-        let startIdx = -1;
-        for(let i = 0; i < lines.length; i++){
-            if(lines[i] === start_line){
-                startIdx = i;
-                break;
-            }
+        let startIdx = lines.indexOf(start_line);
+        let endIdx = lines.indexOf(end_line);
+
+        if(startIdx === -1 || endIdx === -1){
+            throw new Error("Dữ liệu không đúng chuẩn");
+        }else if(startIdx === endIdx - 1){
+            throw new Error("Không có Dữ liệu lịch thi");
         }
-        if(startIdx === -1){
-            alert("Dữ liệu không đúng chuẩn");
-            return;
-        }else if(startIdx === lines.length - 1){
-            alert("Không có Dữ liệu lịch thi");
-            return;
-        }
+
         startIdx++;
-        return {'lines':lines, 'startIdx':startIdx, 'end_line':end_line};        
+        if(lines[startIdx] === "")
+          throw new Error("Dữ liệu không đúng chuẩn");
+        
+        return {'lines':lines, 'startIdx':startIdx, 'endIdx':endIdx};
     }
     const createEventsToFile = () => {
-        let {lines, startIdx, end_line} = handleSplit();
+      try {
+        const splited = handleSplit();
+        let lines = splited.lines;
+        let startIdx = splited.startIdx;
+        let endIdx = splited.endIdx;
+
         let myCalendar = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//MyReactApp//NONSGML v1.0//EN\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH\nX-WR-CALNAME:${"Lịch thi " + lines[startIdx].substring(0,5)}\nX-WR-TIMEZONE:Asia/Ho_Chi_Minh\n`;
         const fileName = `myExam_${lines[startIdx].substring(0,5)}`;
-        while(lines[startIdx] !== end_line && startIdx < lines.length){
-            const line = lines[startIdx].split('\t');
+        for(let i = startIdx; i < endIdx; i++){
+            const line = lines[i].split('\t');
             const toICS = (ngay, gio, themPhut = 0) => {
                 const d = new Date(`${ngay}T${gio.replace('g', ':').padStart(5, '0')}:00+07:00`);
                 const minutesToAdd = Number(themPhut); 
@@ -55,10 +56,9 @@ function Pane() {
                         + `STATUS:CONFIRMED\n`
                         + `END:VEVENT\n`;
             myCalendar += myEvent;
-            startIdx++;
         }
         myCalendar += "END:VCALENDAR";
-        console.log(myCalendar);
+        // console.log(myCalendar);
 
         
         const blob = new Blob([myCalendar], { type: "text/calendar;charset=utf-8" });
@@ -70,13 +70,16 @@ function Pane() {
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
+      } catch(error) {
+        alert(error);
+      };
     }
 
     const CLIENT_ID = "594450533508-bkf8586tubie23v35bej23oo3tlu285l.apps.googleusercontent.com"; 
     const SCOPES = "https://www.googleapis.com/auth/calendar";
     const [accessToken, setAccessToken] = useState(null);
     const [status, setStatus] = useState("Chưa kết nối");
-    // Hàm kích hoạt đăng nhập OAuth2
+
     const handleConnect = () => {
         const client = window.google.accounts.oauth2.initTokenClient({
           client_id: CLIENT_ID,
@@ -95,7 +98,10 @@ function Pane() {
       if (!accessToken) return alert("Vui lòng kết nối Google trước!");
       setIsLoading(true);
       try {
-        let {lines, startIdx, end_line} = handleSplit();
+        const splited = handleSplit();
+        let lines = splited.lines;
+        let startIdx = splited.startIdx;
+        let endIdx = splited.endIdx;
 
         // Create new Calendar
         const createCalRes = await fetch("https://www.googleapis.com/calendar/v3/calendars", {
@@ -116,7 +122,7 @@ function Pane() {
         // Create Events
         let check = true;
         const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-        while(lines[startIdx] !== end_line && startIdx < lines.length){
+        for(let i = startIdx; i < endIdx; i++){
           const line = lines[startIdx].split('\t');
           const format = (ngay, gio, themPhut = 0) => {
             const d = new Date(`${ngay}T${gio.replace('g', ':').padStart(5, '0')}:00+07:00`);
@@ -156,10 +162,9 @@ function Pane() {
         if(check)
           alert("Đã thêm lịch");
         else 
-          alert("Lỗi");
+          alert("Thêm lịch không thành công");
       } catch (error) {
-        console.error("Lỗi:", error);
-        alert("Lỗi: " + error);
+        alert(error);
       } finally {
         setIsLoading(false);
       }
