@@ -1,7 +1,7 @@
 import { useState } from 'react';
 function Pane() {
     const [content, setContent] = useState("");
-
+    const [isLoading, setIsLoading] = useState(false);
     const handleSplit = () => {
         const start_line = "Học kỳ	Môn học	Nhóm lớp	Ngày thi	Loại thi	Cơ sở	Mã phòng	Thứ	Giờ bắt đầu	Tổng số phút	Cập nhật cuối cùng vào lúc";
         const end_line = "Trình bày từ dòng 1 đến 8 / 8 dòng";
@@ -93,7 +93,7 @@ function Pane() {
     
     const createNewCalendarAndEvent = async () => {
       if (!accessToken) return alert("Vui lòng kết nối Google trước!");
-  
+      setIsLoading(true);
       try {
         let {lines, startIdx, end_line} = handleSplit();
 
@@ -105,7 +105,7 @@ function Pane() {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            'summary': `${"Lịch thi " + lines[startIdx].substring(0,5)}`, // Tên bộ lịch mới
+            'summary': `${"Lịch thi " + lines[startIdx].substring(0,5)}`, 
             'timeZone': 'Asia/Ho_Chi_Minh'
           })
         });
@@ -160,6 +160,8 @@ function Pane() {
       } catch (error) {
         console.error("Lỗi:", error);
         alert("Lỗi: " + error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -183,31 +185,26 @@ function Pane() {
             >
                 Tải lịch thi
             </button>
-            <div style={{ padding: '20px', textAlign: 'center' }}>
-              <p>Trạng thái: <strong>{status}</strong></p>
-              
-              {!accessToken ? (
-                  <button onClick={handleConnect} style={btnStyle}>
-                  Kết nối Google
-                  </button>
-              ) : (
-                  <button onClick={createNewCalendarAndEvent} style={{...btnStyle, backgroundColor: '#28a745'}}>
-                  Thêm Lịch Thi vào Google Calendar
-                  </button>
-              )}
-          </div>
+            <div className='p-[20px] items-center'>
+                <p>Trạng thái: <strong>{status}</strong></p>
+                
+                {!accessToken ? (
+                    <button className="w-full px-[20px] py-[10px] text-[16px] cursor-pointer bg-[#4285F4] text-white border-none rounded-[5px] hover:bg-[#357ae8] transition-colors" onClick={handleConnect}>
+                        Kết nối với Google
+                    </button>
+                ) : (
+                    <button 
+                        className={`w-full px-[20px] py-[10px] text-[16px] ${isLoading ? "bg-gray-300 cursor-not-allowed" : "bg-[#28a745] cursor-pointer hover:bg-[#357ae8]"} text-white border-none rounded-[5px] transition-colors`}
+                        onClick={createNewCalendarAndEvent}
+                        disabled={isLoading}
+                    >
+                        {isLoading ? (<> Đang xử lý ... </>) : (<>Thêm vào <strong>Google Calendar</strong></>)}
+                    </button>
+                )}
+            </div>  
         </div>
         
         </>
     );
 }
-const btnStyle = {
-  padding: '10px 20px',
-  fontSize: '16px',
-  cursor: 'pointer',
-  backgroundColor: '#4285F4',
-  color: 'white',
-  border: 'none',
-  borderRadius: '5px'
-};
 export default Pane
