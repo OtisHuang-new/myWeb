@@ -169,14 +169,14 @@ function Pane() {
         <>
         <div className="w-[400px] bg-white p-4 shadow-lg rounded-lg">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-                Thời khóa biểu của bạn:
+                Lịch thi của bạn:
             </label>
             
             <textarea 
                 value={content}
                 onChange={(e) => setContent(e.target.value)} 
                 className="w-full h-32 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
-                placeholder="Hãy nhập Thời khóa biểu vào đây..."
+                placeholder="Hãy nhập Lịch thi vào đây..."
             ></textarea>
             
             <button 
@@ -202,6 +202,9 @@ function Pane() {
                     </button>
                 )}
             </div>  
+            <div className='text-[13px] text-gray-400'>
+                Nhấp {<a href="https://forms.gle/AyWeuChK2mMPAJL27" target="_blank" rel="noopener noreferrer" className='text-blue-400 hover:underline'>tại đây</a>} để gửi feedback cho mình nha, thank iu.
+            </div>
         </div>
         
         </>
